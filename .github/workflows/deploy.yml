@@ -43,6 +43,13 @@ jobs:
         # URL de l'API backend - Configurez le secret VITE_API_URL dans GitHub
         VITE_API_URL: ${{ secrets.VITE_API_URL }}
     
+    - name: Ensure .nojekyll file exists
+      working-directory: ./frontend/dist
+      run: |
+        # Créer le fichier .nojekyll s'il n'existe pas (doit être vide)
+        touch .nojekyll
+        echo ".nojekyll file created/verified"
+    
     - name: Setup Pages
       uses: actions/configure-pages@v4
     
