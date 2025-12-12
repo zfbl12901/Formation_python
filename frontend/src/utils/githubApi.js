@@ -7,11 +7,16 @@ const GITHUB_API_BASE = 'https://api.github.com/repos'
 // Fonction pour récupérer le contenu brut d'un fichier depuis GitHub
 export async function getFileContent(path) {
   try {
-    // Utiliser l'API GitHub pour récupérer le contenu du fichier
+    // Essayer d'abord avec l'API GitHub Contents
     const url = `${GITHUB_API_BASE}/${GITHUB_REPO}/contents/${path}`
     const response = await fetch(url)
     
     if (!response.ok) {
+      // Si erreur 403, utiliser raw.githubusercontent.com directement
+      if (response.status === 403) {
+        console.warn(`API GitHub retourne 403 pour ${path}, utilisation de raw.githubusercontent.com`)
+        return getFileContentAlternative(path)
+      }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     
@@ -26,17 +31,46 @@ export async function getFileContent(path) {
     return data.content || ''
   } catch (error) {
     console.error(`Erreur lors de la récupération de ${path}:`, error)
+    // En cas d'erreur, essayer l'approche alternative
+    try {
+      return await getFileContentAlternative(path)
+    } catch (altError) {
+      throw error // Relancer l'erreur originale
+    }
+  }
+}
+
+// Approche alternative : utiliser raw.githubusercontent.com directement
+async function getFileContentAlternative(path) {
+  try {
+    const url = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${path}`
+    const response = await fetch(url)
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    return await response.text()
+  } catch (error) {
+    console.error(`Erreur lors de la récupération alternative de ${path}:`, error)
     throw error
   }
 }
 
 // Fonction pour récupérer la liste des fichiers .md dans un dossier
+// Utilise une approche alternative si l'API GitHub échoue (403)
 export async function getMarkdownFiles(directory = 'content') {
   try {
+    // Essayer d'abord avec l'API GitHub
     const url = `${GITHUB_API_BASE}/${GITHUB_REPO}/contents/${directory}`
     const response = await fetch(url)
     
     if (!response.ok) {
+      // Si erreur 403 (privé ou rate limit), utiliser l'approche alternative
+      if (response.status === 403) {
+        console.warn('API GitHub retourne 403, utilisation de l\'approche alternative')
+        return getMarkdownFilesAlternative(directory)
+      }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     
@@ -64,6 +98,47 @@ export async function getMarkdownFiles(directory = 'content') {
     return mdFiles
   } catch (error) {
     console.error(`Erreur lors de la récupération des fichiers .md:`, error)
+    // En cas d'erreur, essayer l'approche alternative
+    try {
+      return await getMarkdownFilesAlternative(directory)
+    } catch (altError) {
+      throw error // Relancer l'erreur originale
+    }
+  }
+}
+
+// Approche alternative : utiliser la liste des fichiers depuis le repository GitHub
+// via l'API GitHub Trees (plus fiable pour les repos privés)
+async function getMarkdownFilesAlternative(directory = 'content') {
+  try {
+    // Utiliser l'API GitHub Trees pour récupérer l'arborescence
+    const treeUrl = `${GITHUB_API_BASE}/${GITHUB_REPO}/git/trees/main?recursive=1`
+    const response = await fetch(treeUrl)
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    // Filtrer les fichiers .md dans le dossier content
+    const mdFiles = data.tree
+      .filter(item => 
+        item.type === 'blob' && 
+        item.path.startsWith(directory + '/') && 
+        item.path.endsWith('.md')
+      )
+      .map(item => ({
+        path: item.path,
+        name: item.path.split('/').pop(),
+        sha: item.sha,
+        size: item.size || 0,
+        url: `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${item.path}`
+      }))
+    
+    return mdFiles
+  } catch (error) {
+    console.error(`Erreur lors de la récupération alternative des fichiers .md:`, error)
     throw error
   }
 }
@@ -221,6 +296,65 @@ export async function searchLessons(query, tags = null) {
   } catch (error) {
     console.error('Erreur lors de la recherche:', error)
     return { lessons: [] }
+  }
+}
+
+// Récupérer la hiérarchie des leçons
+export async function getHierarchy() {
+  try {
+    const { lessons } = await getAllLessons()
+    
+    // Organiser en hiérarchie
+    const lessonsDict = {}
+    const rootLessons = []
+    
+    // Créer un dictionnaire de toutes les leçons
+    for (const lesson of lessons) {
+      lessonsDict[lesson.path] = {
+        ...lesson,
+        children: []
+      }
+    }
+    
+    // Organiser la hiérarchie
+    for (const lesson of lessons) {
+      if (lesson.parent) {
+        // Chercher le parent
+        const parentPath = lesson.parent
+        const parent = lessonsDict[parentPath] || 
+                      Object.values(lessonsDict).find(l => l.path.endsWith(parentPath))
+        
+        if (parent) {
+          parent.children.push(lessonsDict[lesson.path])
+        } else {
+          // Parent non trouvé, traiter comme racine
+          rootLessons.push(lessonsDict[lesson.path])
+        }
+      } else {
+        // Pas de parent, c'est une racine
+        rootLessons.push(lessonsDict[lesson.path])
+      }
+    }
+    
+    // Trier par ordre
+    const sortLessons = (lessonsList) => {
+      lessonsList.sort((a, b) => {
+        if (a.order !== b.order) return a.order - b.order
+        return a.title.localeCompare(b.title)
+      })
+      for (const lesson of lessonsList) {
+        if (lesson.children && lesson.children.length > 0) {
+          sortLessons(lesson.children)
+        }
+      }
+    }
+    
+    sortLessons(rootLessons)
+    
+    return { hierarchy: rootLessons }
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la hiérarchie:', error)
+    return { hierarchy: [] }
   }
 }
 

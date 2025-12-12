@@ -129,6 +129,9 @@ async function fetchWithCacheGitHub(url, options = {}) {
   } else if (url.startsWith('/api/tags') || url === 'tags') {
     cacheKey = 'github:tags'
     dataPromise = githubApi.getAllTags()
+  } else if (url.startsWith('/api/hierarchy') || url === 'hierarchy') {
+    cacheKey = 'github:hierarchy'
+    dataPromise = githubApi.getHierarchy()
   } else if (url.startsWith('/api/lessons/')) {
     const path = url.replace('/api/lessons/', '').replace('lessons/', '')
     cacheKey = `github:lesson:${path}`

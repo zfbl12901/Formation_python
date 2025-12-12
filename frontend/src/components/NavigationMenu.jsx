@@ -11,8 +11,8 @@ function NavigationMenu() {
   useEffect(() => {
     const fetchHierarchy = async () => {
       try {
-        const response = await fetch('/api/hierarchy')
-        const data = await response.json()
+        const { fetchWithCache } = await import('../utils/cache.js')
+        const data = await fetchWithCache('/api/hierarchy')
         setHierarchy(data.hierarchy || [])
         // Expand les sections principales par défaut
         const mainSections = []
