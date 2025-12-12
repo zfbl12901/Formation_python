@@ -1,0 +1,643 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --reading-font-size: 16px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Thème sombre (par défaut) */
+[data-theme="dark"] body {
+  background-color: #0a0a0a;
+  color: #e5e5e5;
+}
+
+/* Thème clair */
+[data-theme="light"] body {
+  background-color: #ffffff;
+  color: #212529;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+code {
+  font-family: 'Courier New', monospace;
+}
+
+/* Styles pour le markdown - Thème sombre */
+[data-theme="dark"] .markdown-content {
+  @apply text-dark-text;
+}
+
+/* Styles pour le markdown - Thème clair */
+[data-theme="light"] .markdown-content {
+  @apply text-light-text;
+}
+
+.markdown-content h1 {
+  @apply text-4xl font-bold mb-6 mt-8 text-white;
+  font-size: calc(var(--reading-font-size, 16px) * 2.5);
+}
+
+.markdown-content h2 {
+  @apply text-3xl font-bold mb-4 mt-6 text-white;
+  font-size: calc(var(--reading-font-size, 16px) * 2);
+}
+
+.markdown-content h3 {
+  @apply text-2xl font-semibold mb-3 mt-5 text-white;
+  font-size: calc(var(--reading-font-size, 16px) * 1.5);
+}
+
+.markdown-content h4 {
+  @apply text-xl font-semibold mb-2 mt-4;
+  font-size: calc(var(--reading-font-size, 16px) * 1.25);
+}
+
+.markdown-content {
+  font-size: var(--reading-font-size, 16px);
+}
+
+.markdown-content p {
+  @apply mb-4 leading-7;
+  font-size: inherit;
+}
+
+.markdown-content ul, .markdown-content ol {
+  @apply mb-4 ml-6;
+}
+
+.markdown-content li {
+  @apply mb-2;
+}
+
+.markdown-content code {
+  @apply bg-dark-surface px-2 py-1 rounded text-sm font-mono text-blue-400;
+}
+
+.markdown-content pre {
+  @apply bg-dark-surface p-4 rounded-lg mb-4 overflow-x-auto border border-dark-border relative;
+}
+
+.markdown-content pre code {
+  @apply bg-transparent p-0 text-sm;
+}
+
+/* Styles pour Prism.js */
+.markdown-content pre[class*="language-"] {
+  @apply bg-dark-surface;
+}
+
+.markdown-content code[class*="language-"] {
+  @apply bg-transparent p-0;
+  font-size: 0.9em;
+}
+
+/* Styles pour les blocs de code avec bouton copier */
+.code-block-wrapper {
+  @apply relative mb-4;
+}
+
+.code-block-header {
+  @apply flex items-center justify-between px-4 py-2 bg-dark-surfaceHover border-b border-dark-border rounded-t-lg;
+}
+
+.code-language {
+  @apply px-2 py-1 bg-dark-accent/20 text-dark-accent rounded text-xs font-medium;
+}
+
+.code-copy-btn {
+  @apply p-1.5 rounded hover:bg-dark-surface transition-colors text-dark-textSecondary hover:text-white;
+}
+
+.code-copy-btn.copied {
+  @apply bg-green-600 text-white;
+}
+
+.code-copy-btn svg {
+  @apply w-4 h-4;
+}
+
+.code-copy-btn .hidden {
+  display: none;
+}
+
+.code-block-wrapper pre {
+  @apply rounded-t-none mb-0;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-dark-accent pl-4 italic my-4 text-dark-textSecondary;
+}
+
+.markdown-content a {
+  @apply text-dark-accent hover:text-dark-accentHover underline;
+}
+
+.markdown-content table {
+  @apply w-full border-collapse mb-4;
+}
+
+.markdown-content th,
+.markdown-content td {
+  @apply border border-dark-border px-4 py-2;
+}
+
+.markdown-content th {
+  @apply bg-dark-surface font-semibold;
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444444;
+}
+
+/* Animations de transition entre pages */
+.page-transition {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition.fadeOut {
+  animation: fadeOut 0.2s ease-in-out;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* Lazy loading pour les images */
+.markdown-content img {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.markdown-content img.loaded {
+  opacity: 1;
+}
+
+.markdown-content img[loading="lazy"] {
+  background: linear-gradient(90deg, #2d2d2d 25%, #3a3a3a 50%, #2d2d2d 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Scrollbar pour la sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+/* Styles pour les suggestions de recherche */
+.search-suggestions {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Skip Links - Accessibilité */
+.skip-links {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  z-index: 100;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 12px 24px;
+  background: #3b82f6;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 4px 0;
+  transform: translateY(-100%);
+  transition: transform 0.2s;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Amélioration du focus visible - Accessibilité */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+[data-theme="light"] *:focus-visible {
+  outline-color: #0d6efd;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+[data-theme="light"] button:focus-visible,
+[data-theme="light"] a:focus-visible,
+[data-theme="light"] input:focus-visible,
+[data-theme="light"] textarea:focus-visible,
+[data-theme="light"] select:focus-visible {
+  outline-color: #0d6efd;
+}
+
+/* Styles responsifs améliorés */
+@media (max-width: 768px) {
+  .markdown-content {
+    font-size: calc(var(--reading-font-size, 16px) * 0.9);
+  }
+  
+  .markdown-content h1 {
+    font-size: calc(var(--reading-font-size, 16px) * 2);
+  }
+  
+  .markdown-content h2 {
+    font-size: calc(var(--reading-font-size, 16px) * 1.75);
+  }
+  
+  .markdown-content h3 {
+    font-size: calc(var(--reading-font-size, 16px) * 1.5);
+  }
+}
+
+/* Scrollbar adaptative selon le thème */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #333333;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #444444;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #adb5bd;
+}
+
+/* Theme Toggle Button */
+[data-theme="dark"] .theme-toggle-btn {
+  background-color: #1a1a1a;
+  border: 1px solid #333333;
+  color: #a0a0a0;
+}
+
+[data-theme="dark"] .theme-toggle-btn:hover {
+  background-color: #2a2a2a;
+  color: #e5e5e5;
+}
+
+[data-theme="dark"] .theme-toggle-btn:focus-visible {
+  outline-color: #3b82f6;
+  outline-offset-color: #0a0a0a;
+}
+
+[data-theme="light"] .theme-toggle-btn {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #6c757d;
+}
+
+[data-theme="light"] .theme-toggle-btn:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+
+[data-theme="light"] .theme-toggle-btn:focus-visible {
+  outline-color: #0d6efd;
+  outline-offset-color: #ffffff;
+}
+
+/* Classes utilitaires pour les thèmes */
+[data-theme="dark"] .bg-theme-bg {
+  background-color: #0a0a0a;
+}
+
+[data-theme="light"] .bg-theme-bg {
+  background-color: #ffffff;
+}
+
+[data-theme="dark"] .bg-theme-surface {
+  background-color: #1a1a1a;
+}
+
+[data-theme="light"] .bg-theme-surface {
+  background-color: #f8f9fa;
+}
+
+[data-theme="dark"] .text-theme-text {
+  color: #e5e5e5;
+}
+
+[data-theme="light"] .text-theme-text {
+  color: #212529;
+}
+
+[data-theme="dark"] .border-theme-border {
+  border-color: #333333;
+}
+
+[data-theme="light"] .border-theme-border {
+  border-color: #dee2e6;
+}
+
+/* Styles d'impression optimisés */
+@media print {
+  /* Masquer les éléments non nécessaires à l'impression */
+  .no-print,
+  .print\\:hidden,
+  aside,
+  header:not(.print-header),
+  nav,
+  button:not(.print-button),
+  .scroll-progress,
+  .reading-progress,
+  .reading-line,
+  .reading-controls,
+  .sidebar,
+  .skip-links,
+  .theme-toggle-btn,
+  .code-copy-btn,
+  .code-block-header {
+    display: none !important;
+  }
+  
+  /* Styles de base pour l'impression */
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.6;
+    max-width: 100%;
+    margin: 0;
+    padding: 1cm;
+  }
+  
+  /* Configuration de la page */
+  @page {
+    size: A4;
+    margin: 2cm;
+  }
+  
+  /* Titres */
+  h1 {
+    font-size: 24pt;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+    color: #000 !important;
+  }
+  
+  h2 {
+    font-size: 20pt;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+    color: #000 !important;
+  }
+  
+  h3 {
+    font-size: 16pt;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+    color: #000 !important;
+  }
+  
+  h4 {
+    font-size: 14pt;
+    margin-top: 0.75em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+    color: #000 !important;
+  }
+  
+  /* Paragraphes */
+  p {
+    margin-bottom: 1em;
+    orphans: 3;
+    widows: 3;
+  }
+  
+  /* Code */
+  code {
+    background: #f5f5f5 !important;
+    color: #000 !important;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.9em;
+    font-family: 'Courier New', monospace;
+  }
+  
+  pre {
+    background: #f5f5f5 !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px;
+    padding: 1em;
+    overflow-x: auto;
+    page-break-inside: avoid;
+    font-size: 0.85em;
+    color: #000 !important;
+  }
+  
+  pre code {
+    background: transparent !important;
+    padding: 0;
+  }
+  
+  /* Blockquotes */
+  blockquote {
+    border-left: 4px solid #3b82f6 !important;
+    padding-left: 1em;
+    margin: 1em 0;
+    font-style: italic;
+    color: #333 !important;
+  }
+  
+  /* Tableaux */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    page-break-inside: avoid;
+  }
+  
+  th, td {
+    border: 1px solid #ddd !important;
+    padding: 0.5em;
+    text-align: left;
+    color: #000 !important;
+  }
+  
+  th {
+    background: #f5f5f5 !important;
+    font-weight: bold;
+  }
+  
+  /* Images */
+  img {
+    max-width: 100% !important;
+    height: auto;
+    page-break-inside: avoid;
+  }
+  
+  /* Listes */
+  ul, ol {
+    margin: 1em 0;
+    padding-left: 2em;
+  }
+  
+  li {
+    margin-bottom: 0.5em;
+  }
+  
+  /* Liens */
+  a {
+    color: #3b82f6 !important;
+    text-decoration: underline;
+  }
+  
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666 !important;
+  }
+  
+  /* Articles */
+  article {
+    background: white !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+  
+  /* Contenu markdown */
+  .markdown-content {
+    color: #000 !important;
+  }
+  
+  .markdown-content * {
+    color: #000 !important;
+  }
+  
+  /* Éviter les coupures de page */
+  .code-block-wrapper {
+    page-break-inside: avoid;
+  }
+  
+  /* Footer d'impression */
+  .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.8em;
+    color: #666 !important;
+    padding: 1em;
+    border-top: 1px solid #ddd;
+  }
+}
+
+
