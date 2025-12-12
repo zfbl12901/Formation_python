@@ -44,8 +44,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configuration
-CONTENT_DIR = Path("../content")
+# Configuration du dossier content
+# En développement : ../content (relatif au dossier backend)
+# En production : utiliser la variable d'environnement CONTENT_DIR ou le chemin par défaut
+CONTENT_DIR_ENV = os.getenv("CONTENT_DIR")
+if CONTENT_DIR_ENV:
+    CONTENT_DIR = Path(CONTENT_DIR_ENV)
+else:
+    # Essayer plusieurs chemins possibles
+    possible_paths = [
+        Path("../content"),  # Développement local (depuis backend/)
+        Path("./content"),   # Production (si content est copié dans backend/)
+        Path("/app/content"),  # Docker (si monté)
+        Path(__file__).parent.parent / "content",  # Depuis le repo root
+    ]
+    
+    CONTENT_DIR = None
+    for path in possible_paths:
+        if path.exists() and path.is_dir():
+            CONTENT_DIR = path
+            break
+    
+    # Si aucun chemin n'existe, utiliser le premier comme défaut
+    if CONTENT_DIR is None:
+        CONTENT_DIR = possible_paths[0]
+
+# Créer le dossier s'il n'existe pas (pour éviter les erreurs)
 CONTENT_DIR.mkdir(exist_ok=True)
 
 class LessonMetadata(BaseModel):

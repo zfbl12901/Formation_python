@@ -14,8 +14,13 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copier le code de l'application
 COPY . .
 
-# Créer le dossier content s'il n'existe pas
-RUN mkdir -p ../content
+# Copier le dossier content depuis le répertoire parent
+# Note: Ce Dockerfile doit être exécuté depuis le répertoire racine du projet
+# avec: docker build -f backend/Dockerfile -t formation-python-backend .
+COPY content/ ./content/
+
+# Créer le dossier content s'il n'existe pas (fallback)
+RUN mkdir -p ./content
 
 # Exposer le port
 EXPOSE 8000
