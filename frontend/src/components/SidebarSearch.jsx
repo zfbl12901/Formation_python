@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, X, Clock, Tag } from 'lucide-react'
+import { apiUrl } from '../utils/api.js'
 
 function SidebarSearch() {
   const [query, setQuery] = useState('')
@@ -18,8 +19,8 @@ function SidebarSearch() {
     const fetchData = async () => {
       try {
         const [lessonsRes, tagsRes] = await Promise.all([
-          fetch('/api/lessons'),
-          fetch('/api/tags')
+          fetch(apiUrl('lessons')),
+          fetch(apiUrl('tags'))
         ])
         const lessonsData = await lessonsRes.json()
         const tagsData = await tagsRes.json()

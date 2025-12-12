@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { Search, Tag, BookOpen } from 'lucide-react'
 import ListSkeleton from './ListSkeleton'
 import { fetchWithCache } from '../utils/cache'
+import { apiPost } from '../utils/api.js'
 
 function SearchView() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -38,17 +39,10 @@ function SearchView() {
   const performSearch = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: query,
-          tags: selectedTags.length > 0 ? selectedTags : null,
-        }),
+      const data = await apiPost('search', {
+        query: query,
+        tags: selectedTags.length > 0 ? selectedTags : null,
       })
-      const data = await response.json()
       setResults(data.lessons || [])
       setSearchParams({ q: query })
     } catch (err) {

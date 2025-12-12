@@ -55,6 +55,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./frontend/dist
         destination_dir: ./docs
+        publish_branch: main  # Important : pousser vers main au lieu de gh-pages
         keep_files: false
         user_name: 'github-actions[bot]'
         user_email: 'github-actions[bot]@users.noreply.github.com'
@@ -70,6 +71,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./frontend/dist
         destination_dir: ./
+        publish_branch: main  # Important : pousser vers main au lieu de gh-pages
         keep_files: true  # Préserve les fichiers existants
         exclude_assets: '.git,.github,backend,frontend,content,node_modules'
         user_name: 'github-actions[bot]'

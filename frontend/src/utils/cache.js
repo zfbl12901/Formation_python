@@ -97,28 +97,49 @@ setInterval(() => {
   apiCache.cleanup()
 }, 10 * 60 * 1000)
 
+// Import de apiUrl (import statique pour éviter les problèmes)
+import { apiUrl } from './api.js'
+
 // Fonction helper pour fetch avec cache
+// Accepte soit une URL complète, soit un chemin relatif (ex: 'lessons' ou '/api/lessons')
 export async function fetchWithCache(url, options = {}) {
+  // Normaliser l'URL : si c'est un chemin relatif, construire l'URL complète
+  let fullUrl = url
+  
+  // Si l'URL ne commence pas par http:// ou https://, c'est un chemin relatif
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    // Si l'URL commence par /api/, enlever le préfixe
+    if (url.startsWith('/api/')) {
+      fullUrl = apiUrl(url.replace('/api/', ''))
+    } else if (url.startsWith('/')) {
+      // Si c'est juste un chemin qui commence par /, construire l'URL API
+      fullUrl = apiUrl(url.slice(1))
+    } else {
+      // Sinon, c'est juste un chemin (ex: 'lessons')
+      fullUrl = apiUrl(url)
+    }
+  }
+  
   // Vérifier le cache d'abord
-  const cached = apiCache.get(url)
+  const cached = apiCache.get(fullUrl)
   if (cached) {
     return cached
   }
 
   // Si pas en cache, faire la requête
   try {
-    const response = await fetch(url, options)
+    const response = await fetch(fullUrl, options)
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
     const data = await response.json()
     
     // Mettre en cache
-    apiCache.set(url, data)
+    apiCache.set(fullUrl, data)
     
     return data
   } catch (error) {
-    console.error(`Erreur lors du fetch de ${url}:`, error)
+    console.error(`Erreur lors du fetch de ${fullUrl}:`, error)
     throw error
   }
 }
