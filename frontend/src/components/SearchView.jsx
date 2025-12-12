@@ -39,11 +39,22 @@ function SearchView() {
   const performSearch = async () => {
     setLoading(true)
     try {
-      const data = await apiPost('search', {
-        query: query,
-        tags: selectedTags.length > 0 ? selectedTags : null,
-      })
-      setResults(data.lessons || [])
+      // Vérifier si on utilise GitHub API ou le backend
+      const useGitHub = !import.meta.env.VITE_API_URL
+      
+      if (useGitHub) {
+        // Utiliser GitHub API
+        const { searchLessons } = await import('../utils/githubApi.js')
+        const data = await searchLessons(query, selectedTags.length > 0 ? selectedTags : null)
+        setResults(data.lessons || [])
+      } else {
+        // Utiliser le backend
+        const data = await apiPost('search', {
+          query: query,
+          tags: selectedTags.length > 0 ? selectedTags : null,
+        })
+        setResults(data.lessons || [])
+      }
       setSearchParams({ q: query })
     } catch (err) {
       console.error('Erreur lors de la recherche:', err)

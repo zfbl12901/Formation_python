@@ -315,16 +315,32 @@ async def get_all_lessons():
     """Récupère tous les fichiers Markdown avec leurs métadonnées"""
     lessons = []
     
+    # Log pour le débogage
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"CONTENT_DIR: {CONTENT_DIR}")
+    logger.info(f"CONTENT_DIR exists: {CONTENT_DIR.exists()}")
+    logger.info(f"CONTENT_DIR absolute: {CONTENT_DIR.absolute()}")
+    
     if not CONTENT_DIR.exists():
+        logger.warning(f"CONTENT_DIR does not exist: {CONTENT_DIR}")
         return LessonList(lessons=[])
     
-    for md_file in CONTENT_DIR.rglob("*.md"):
-        metadata = parse_markdown_file(md_file)
-        lessons.append(LessonMetadata(**metadata))
+    md_files = list(CONTENT_DIR.rglob("*.md"))
+    logger.info(f"Found {len(md_files)} markdown files")
+    
+    for md_file in md_files:
+        try:
+            metadata = parse_markdown_file(md_file)
+            lessons.append(LessonMetadata(**metadata))
+        except Exception as e:
+            logger.error(f"Error parsing {md_file}: {e}")
+            continue
     
     # Trier par ordre puis par titre
     lessons.sort(key=lambda x: (x.order, x.title))
     
+    logger.info(f"Returning {len(lessons)} lessons")
     return LessonList(lessons=lessons)
 
 @app.get("/api/lessons/{lesson_path:path}")

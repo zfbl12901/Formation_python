@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, X, Clock, Tag } from 'lucide-react'
-import { apiUrl } from '../utils/api.js'
 
 function SidebarSearch() {
   const [query, setQuery] = useState('')
@@ -18,12 +17,12 @@ function SidebarSearch() {
     // Charger les leçons et tags
     const fetchData = async () => {
       try {
-        const [lessonsRes, tagsRes] = await Promise.all([
-          fetch(apiUrl('lessons')),
-          fetch(apiUrl('tags'))
+        // Utiliser fetchWithCache qui gère automatiquement GitHub API ou backend
+        const { fetchWithCache } = await import('../utils/cache.js')
+        const [lessonsData, tagsData] = await Promise.all([
+          fetchWithCache('/api/lessons'),
+          fetchWithCache('/api/tags')
         ])
-        const lessonsData = await lessonsRes.json()
-        const tagsData = await tagsRes.json()
         setAllLessons(lessonsData.lessons || [])
         setAllTags(tagsData.tags || {})
       } catch (err) {

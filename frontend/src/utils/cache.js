@@ -99,10 +99,77 @@ setInterval(() => {
 
 // Import de apiUrl (import statique pour éviter les problèmes)
 import { apiUrl } from './api.js'
+import * as githubApi from './githubApi.js'
+
+// Mode : 'backend' ou 'github'
+// Si VITE_API_URL est défini, utiliser le backend, sinon utiliser GitHub API
+const API_MODE = import.meta.env.VITE_API_URL ? 'backend' : 'github'
 
 // Fonction helper pour fetch avec cache
 // Accepte soit une URL complète, soit un chemin relatif (ex: 'lessons' ou '/api/lessons')
 export async function fetchWithCache(url, options = {}) {
+  // Si on utilise GitHub API, mapper les endpoints
+  if (API_MODE === 'github') {
+    return fetchWithCacheGitHub(url, options)
+  }
+  
+  // Sinon, utiliser le backend classique
+  return fetchWithCacheBackend(url, options)
+}
+
+// Fetch avec cache pour GitHub API
+async function fetchWithCacheGitHub(url, options = {}) {
+  // Mapper les endpoints GitHub API
+  let cacheKey = url
+  let dataPromise
+  
+  if (url === '/api/lessons' || url === 'lessons') {
+    cacheKey = 'github:lessons'
+    dataPromise = githubApi.getAllLessons()
+  } else if (url.startsWith('/api/tags') || url === 'tags') {
+    cacheKey = 'github:tags'
+    dataPromise = githubApi.getAllTags()
+  } else if (url.startsWith('/api/lessons/')) {
+    const path = url.replace('/api/lessons/', '').replace('lessons/', '')
+    cacheKey = `github:lesson:${path}`
+    dataPromise = githubApi.getLesson(`content/${path}`)
+  } else if (url.startsWith('/api/navigation/')) {
+    const path = url.replace('/api/navigation/', '').replace('navigation/', '')
+    cacheKey = `github:navigation:${path}`
+    // Pour la navigation, on a besoin de toutes les leçons
+    const { lessons } = await fetchWithCacheGitHub('/api/lessons')
+    const currentIndex = lessons.findIndex(l => l.path === path)
+    const previous = currentIndex > 0 ? lessons[currentIndex - 1] : null
+    const next = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null
+    dataPromise = Promise.resolve({
+      previous: previous ? { path: previous.path, title: previous.title } : null,
+      next: next ? { path: next.path, title: next.title } : null,
+      breadcrumb: [] // Simplifié pour l'instant
+    })
+  } else {
+    // Endpoint non supporté, essayer le backend
+    return fetchWithCacheBackend(url, options)
+  }
+  
+  // Vérifier le cache
+  const cached = apiCache.get(cacheKey)
+  if (cached) {
+    return cached
+  }
+  
+  // Faire la requête
+  try {
+    const data = await dataPromise
+    apiCache.set(cacheKey, data)
+    return data
+  } catch (error) {
+    console.error(`Erreur lors du fetch GitHub de ${url}:`, error)
+    throw error
+  }
+}
+
+// Fetch avec cache pour le backend
+async function fetchWithCacheBackend(url, options = {}) {
   // Normaliser l'URL : si c'est un chemin relatif, construire l'URL complète
   let fullUrl = url
   
