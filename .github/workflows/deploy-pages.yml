@@ -38,8 +38,11 @@ jobs:
       working-directory: ./frontend
       run: npm run build
       env:
-        # Ajustez selon votre configuration Vite
-        VITE_API_URL: ${{ secrets.VITE_API_URL || 'http://localhost:8000' }}
+        # Activer le mode GitHub Pages pour le base path correct
+        GITHUB_PAGES: 'true'
+        NODE_ENV: 'production'
+        # URL de l'API backend (à configurer selon votre déploiement backend)
+        VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://your-backend-url.com/api' }}
     
     - name: Setup Pages
       uses: actions/configure-pages@v4

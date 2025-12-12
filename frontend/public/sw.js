@@ -2,13 +2,25 @@
 const CACHE_NAME = 'formation-python-v1'
 const RUNTIME_CACHE = 'formation-python-runtime-v1'
 
+// Déterminer le base path depuis l'URL du Service Worker
+const getBasePath = () => {
+  const swUrl = self.location.pathname
+  // Si le Service Worker est dans /Formation_python/sw.js, le base path est /Formation_python/
+  if (swUrl.includes('/Formation_python/')) {
+    return '/Formation_python/'
+  }
+  return '/'
+}
+
+const BASE_PATH = getBasePath()
+
 // Fichiers à mettre en cache au moment de l'installation
 const PRECACHE_URLS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  BASE_PATH,
+  BASE_PATH + 'index.html',
+  BASE_PATH + 'manifest.json',
+  BASE_PATH + 'icon-192.png',
+  BASE_PATH + 'icon-512.png'
 ]
 
 // Installation du Service Worker
@@ -83,7 +95,7 @@ self.addEventListener('fetch', (event) => {
 
           // Si c'est une navigation, retourner la page d'accueil en cache
           if (event.request.mode === 'navigate') {
-            return caches.match('/index.html')
+            return caches.match(BASE_PATH + 'index.html')
           }
 
           // Sinon, retourner une réponse d'erreur

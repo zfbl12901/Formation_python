@@ -1,9 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+// Déterminer le base path selon l'environnement
+// Pour GitHub Pages, utilisez '/Formation_python/'
+// Pour le développement local, utilisez '/'
+const base = process.env.GITHUB_PAGES === 'true' || process.env.NODE_ENV === 'production' 
+  ? '/Formation_python/' 
+  : '/'
+
 export default defineConfig({
   plugins: [react()],
-  base: process.env.GITHUB_PAGES ? '/Formation_python/' : '/',
+  base: base,
   server: {
     port: 5173,
     proxy: {

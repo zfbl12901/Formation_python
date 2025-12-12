@@ -78,6 +78,10 @@ jobs:
     - name: Build frontend
       working-directory: ./frontend
       run: npm run build
+      env:
+        # Activer le mode GitHub Pages pour le base path correct
+        GITHUB_PAGES: 'true'
+        NODE_ENV: 'production'
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
