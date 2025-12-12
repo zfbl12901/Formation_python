@@ -1,5 +1,11 @@
 # GitHub Actions - Workflows
 
+## ⚠️ IMPORTANT : Configuration requise
+
+**AVANT** d'utiliser ce workflow, vous DEVEZ configurer GitHub Pages pour utiliser **"GitHub Actions"** et NON "Deploy from a branch".
+
+Voir `URGENT-FIX-JEKYLL.md` pour les instructions détaillées.
+
 ## Workflow unique : `deploy.yml`
 
 Ce workflow unique gère le build et le déploiement du frontend sur GitHub Pages en utilisant la méthode **GitHub Actions Pages** (recommandée).
