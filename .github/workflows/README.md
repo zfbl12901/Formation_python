@@ -2,7 +2,7 @@
 
 ## Workflow unique : `deploy.yml`
 
-Ce workflow unique gère le build et le déploiement du frontend sur GitHub Pages.
+Ce workflow unique gère le build et le déploiement du frontend sur GitHub Pages en utilisant la méthode **GitHub Actions Pages** (recommandée).
 
 ### Déclenchement
 
@@ -15,16 +15,20 @@ Ce workflow unique gère le build et le déploiement du frontend sur GitHub Page
 2. ✅ Installation de Node.js 20
 3. ✅ Installation des dépendances frontend
 4. ✅ Build du frontend (avec base path `/Formation_python/`)
-5. ✅ Déploiement dans `/docs` de la branche `main`
+5. ✅ Upload de l'artifact
+6. ✅ Déploiement via GitHub Actions Pages (méthode native)
 
 ### Configuration requise
 
 #### GitHub Pages
 
+**IMPORTANT** : Vous devez configurer GitHub Pages pour utiliser **GitHub Actions** :
+
 1. Allez dans **Settings** → **Pages**
-2. **Source** : "Deploy from a branch"
-3. **Branch** : `main` / `/docs`
-4. **Save**
+2. **Source** : Sélectionnez **"GitHub Actions"** (pas "Deploy from a branch")
+3. **Save**
+
+Cette méthode évite les problèmes de Jekyll et les restrictions de push vers `main`.
 
 #### Secret GitHub (optionnel)
 
@@ -35,12 +39,19 @@ Si votre backend est déployé, créez un secret :
 
 ### Structure du déploiement
 
-Le frontend est déployé dans `/docs` de la branche `main`, accessible à :
+Le frontend est déployé via GitHub Actions Pages, accessible à :
 `https://zfbl12901.github.io/Formation_python/`
+
+### Avantages de cette méthode
+
+- ✅ Pas de problème avec Jekyll (le fichier `.nojekyll` est inclus)
+- ✅ Pas de restriction de push vers `main`
+- ✅ Méthode native GitHub Pages
+- ✅ Déploiement automatique et fiable
 
 ### Notes
 
 - Le workflow est simple et ne fait que le nécessaire
 - Pas de tests, lint, ou autres jobs complexes
-- Déploiement direct dans `/docs` de `main`
+- Utilise le système de déploiement GitHub Pages natif
 
